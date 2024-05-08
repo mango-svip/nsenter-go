@@ -8,6 +8,7 @@ import (
     "github.com/docker/docker/api/types"
     "github.com/docker/docker/api/types/container"
     dockerClient "github.com/docker/docker/client"
+    "math"
     "strings"
 )
 
@@ -24,6 +25,7 @@ func init() {
 type model struct {
     containers []types.Container
     cursor     int
+    page       int
 }
 
 func initialModel() model {
@@ -79,14 +81,22 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m model) View() string {
     s := "选择要调试的容器 \n\n"
-    for i, c := range m.containers {
+    pageSize := 20
+    totalSize := len(m.containers)
+    m.page = m.cursor/pageSize + 1
+    offset := (m.page - 1) * pageSize
+    end := offset + pageSize
+    if end > totalSize {
+        end = totalSize
+    }
+    for i, c := range m.containers[offset:end] {
         cursor := " "
-        if m.cursor == i {
+        if m.cursor == i+offset {
             cursor = ">"
         }
         s += fmt.Sprintf("%s %s \n", cursor, keywordStyle.Render(c.Names[0][1:]))
     }
 
-    s += "\n 按 q 退出。 \n"
+    s += fmt.Sprintf("\n %d/%d 按 q 退出。 \n", m.page, int(math.Ceil(float64(len(m.containers))/float64(pageSize))))
     return s
 }
