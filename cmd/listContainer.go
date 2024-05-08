@@ -15,7 +15,7 @@ import (
 var (
     listFlag          = false
     selectedContainer *types.Container
-    keywordStyle      = lipgloss.NewStyle().Foreground(lipgloss.Color("204")).Background(lipgloss.Color("235"))
+    keywordStyle      = lipgloss.NewStyle().Foreground(lipgloss.Color("204"))
 )
 
 func init() {
